@@ -3,111 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guía Interactiva de Git y GitHub</title>
+    
+    <title>Gitv Flow Interactivo | Guía Visual para Aprender Git y GitHub</title>
+    
+    <meta name="description" content="Aprende Git y GitHub de forma fácil y visual. Una guía interactiva con simulaciones de flujos de trabajo (commit, branch, push) y una referencia de comandos para principiantes y expertos.">
+    
+    <meta name="keywords" content="aprender git, guía git, gitflow, github, comandos git, tutorial git, git interactivo, control de versiones, git para principiantes">
+    
+    <link rel="canonical" href="https://URL-DE-TU-PAGINA.com">
+
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <meta property="og:title" content="GitFlow Interactivo | Guía Visual para Aprender Git">
+    <meta property="og:description" content="Domina Git con simulaciones visuales. La forma más fácil de entender el control de versiones sin riesgo.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://URL-DE-TU-PAGINA.com">
+    <meta property="og:image" content="https://URL-DE-TU-PAGINA.com/imagen-preview.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Chosen Palette: Calm Harmony (Tailwind Stone, Sky, Amber) */
-        /* Application Structure Plan: A single-page application divided into five thematic, interactive sections: 'El Mapa' (The Map), 'Flujo Local' (Local Workflow), 'Flujo de Ramas' (Branching Workflow), 'Flujo Remoto' (Remote Workflow), and a 'Comandos' reference section. This structure provides a complete learning tool, from conceptual simulation to practical command reference. */
-        /* Visualization & Content Choices: 
-            - Flujo de Ramas: Uses the simpler, clearer visualization with flexbox and opacity toggling.
-            - Comandos: Implemented as a collapsible accordion. Each command now includes a "Copy" button for easy use and features more complete example syntax as requested.
-            - Copy Functionality: Uses document.execCommand for broad compatibility within iframes, providing instant utility.
-            - Library/Method: Vanilla JS for all interactions. Tailwind CSS for all styling. No Chart.js/Plotly needed.
-        */
-        /* CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. */
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f4; /* stone-100 */
-            color: #44403c; /* stone-700 */
-        }
-        .section-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-        .zone {
-            border: 2px dashed #a8a29e; /* stone-400 */
-            padding: 1rem;
-            border-radius: 0.5rem;
-            min-height: 150px;
-            transition: all 0.3s ease-in-out;
-        }
-        .file, .commit-block {
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.5s ease-in-out;
-            transform-origin: center;
-        }
-        .branch-line {
-            position: relative;
-            width: 100%;
-            height: 2px;
-            background-color: #38bdf8; /* sky-400 */
-        }
-        .branch-line::after {
-            content: '';
-            position: absolute;
-            right: -4px;
-            top: -3px;
-            width: 8px;
-            height: 8px;
-            background-color: #38bdf8; /* sky-400 */
-            border-radius: 50%;
-        }
-        .commit-dot {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: white;
-            border: 2px solid #0284c7; /* sky-600 */
-            border-radius: 50%;
-            top: -5px;
-            transition: opacity 0.5s ease;
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-        }
-        code {
-            background-color: #e7e5e4; /* stone-200 */
-            color: #be123c; /* rose-700 */
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9em;
-        }
-        .copy-btn {
-            background-color: #d6d3d1; /* stone-300 */
-            color: #44403c; /* stone-700 */
-            border: none;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .copy-btn:hover {
-            background-color: #a8a29e; /* stone-400 */
-            color: white;
-        }
-    </style>
-     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <style>
+                       
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #f5f5f4; /* stone-100 */
+                color: #44403c; /* stone-700 */
+            }
+            .section-card {
+                background-color: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+                overflow: hidden;
+            }
+            .zone {
+                border: 2px dashed #a8a29e; /* stone-400 */
+                padding: 1rem;
+                border-radius: 0.5rem;
+                min-height: 150px;
+                transition: all 0.3s ease-in-out;
+            }
+            .file, .commit-block {
+                cursor: pointer;
+                user-select: none;
+                transition: all 0.5s ease-in-out;
+                transform-origin: center;
+            }
+            .branch-line {
+                position: relative;
+                width: 100%;
+                height: 2px;
+                background-color: #38bdf8; /* sky-400 */
+            }
+            .branch-line::after {
+                content: '';
+                position: absolute;
+                right: -4px;
+                top: -3px;
+                width: 8px;
+                height: 8px;
+                background-color: #38bdf8; /* sky-400 */
+                border-radius: 50%;
+            }
+            .commit-dot {
+                position: absolute;
+                width: 12px;
+                height: 12px;
+                background-color: white;
+                border: 2px solid #0284c7; /* sky-600 */
+                border-radius: 50%;
+                top: -5px;
+                transition: opacity 0.5s ease;
+            }
+            .accordion-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.5s ease-in-out;
+            }
+            code {
+                background-color: #e7e5e4; /* stone-200 */
+                color: #be123c; /* rose-700 */
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 0.9em;
+            }
+            .copy-btn {
+                background-color: #d6d3d1; /* stone-300 */
+                color: #44403c; /* stone-700 */
+                border: none;
+                padding: 0.25rem 0.75rem;
+                border-radius: 0.25rem;
+                font-size: 0.8rem;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .copy-btn:hover {
+                background-color: #a8a29e; /* stone-400 */
+                color: white;
+            }
+    </style>  
 </head>
+
 <body class="bg-stone-100 text-stone-800">
 
     <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <span class="font-bold text-xl text-sky-600">GitFlow Interactivo</span>
+                    <h1 class="font-bold text-xl text-sky-600">Git Flow Interactivo</h1>
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
