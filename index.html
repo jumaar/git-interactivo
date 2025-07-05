@@ -302,21 +302,15 @@
             setTimeout(() => {
                 if (remoteState.cloned && remoteState.pulled) {
 
-                    // 1. (SE MANTIENE) Esta línea es la que hace VISIBLE el commit.
+                    
                     newRemoteCommit.classList.remove('opacity-0');
-
-                    // 2. (NUEVO) Quitamos las clases de color morado originales.
                     newRemoteCommit.classList.remove('bg-purple-200', 'border-purple-400');
-
-                    // 3. (NUEVO) Agregamos las nuevas clases de color rojo.
                     newRemoteCommit.classList.add('bg-red-200', 'border-red-400');
-
-                    // El resto del código se mantiene igual
                     remoteState.pulled = false;
                     updateRemoteButtons();
                     setRemoteFeedback('¡Un colega subió un cambio! Haz "pull".');
                 }
-            }, 4000); // Se ejecutará 3 segundos después de clonar.
+            }, 4000); 
                 }
             });
 
@@ -347,9 +341,6 @@
                 const table = document.createElement('table');
                 table.className = 'w-full text-left table-auto';
                 
-                // --- ARREGLO APLICADO AQUÍ ---
-                // Se usa .replace() para escapar los caracteres < y > en c.cmd
-                // Así el navegador los muestra como texto en lugar de interpretarlos como etiquetas HTML.
                 table.innerHTML = `<tbody class="divide-y divide-stone-200">${item.commands.map(c => 
                     `<tr class="hover:bg-stone-50">
                         <td class="py-3 pr-2">
@@ -380,64 +371,45 @@
                 });
             });
 
-            accordionContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('.copy-btn');
-                if (button) {
-                    const codeEl = button.parentElement.querySelector('code');
-                    const textToCopy = codeEl.textContent;
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = textToCopy;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    try {
-                        document.execCommand('copy');
-                        const originalText = button.textContent;
-                        button.textContent = '¡Copiado!';
-                        button.classList.add('bg-green-500', 'text-white');
-                        setTimeout(() => {
-                            button.textContent = originalText;
-                            button.classList.remove('bg-green-500', 'text-white');
-                        }, 1500);
-                    } catch (err) {
-                        console.error('Error al copiar:', err);
-                    }
-                    document.body.removeChild(tempTextArea);
-                }
-            });
+           
+    accordionContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('.copy-btn');
+    
+        if (button && !button.disabled) {
+        
+        const codeEl = button.parentElement.querySelector('code');
+        const textToCopy = codeEl.textContent;
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = textToCopy;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
 
-            accordionContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('.copy-btn');
-                if (button) {
-                    // --- MODIFICACIÓN CLAVE PARA COPIAR ---
-                    // Busca el elemento <code> dentro del contenedor del botón para copiar solo el comando.
-                    const codeEl = button.parentElement.querySelector('code');
-                    // --- FIN DE LA MODIFICACIÓN ---
+        try {
+            document.execCommand('copy');
+            const originalText = button.textContent;
+            button.textContent = '¡Copiado!';
+            button.classList.add('bg-green-500', 'text-white');
+            button.disabled = true;
 
-                    const textToCopy = codeEl.textContent;
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = textToCopy;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    try {
-                        document.execCommand('copy');
-                        const originalText = button.textContent;
-                        button.textContent = '¡Copiado!';
-                        button.classList.add('bg-green-500', 'text-white');
-                        setTimeout(() => {
-                            button.textContent = originalText;
-                            button.classList.remove('bg-green-500', 'text-white');
-                        }, 1500);
-                    } catch (err) {
-                        console.error('Error al copiar:', err);
-                    }
-                    document.body.removeChild(tempTextArea);
-                }
-            });
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-500', 'text-white');
+                button.disabled = false; 
+            }, 500);
 
-            updateLocalButtons();
-            updateBranchButtons();
-            updateRemoteButtons();
-        });
-    </script>
+        } catch (err) {
+            console.error('Error al copiar:', err);
+        } finally {
+           
+            document.body.removeChild(tempTextArea);
+        }
+    }
+});
+
+updateLocalButtons();
+ updateBranchButtons();
+updateRemoteButtons();
+ });
+</script>
 </body>
 </html>
