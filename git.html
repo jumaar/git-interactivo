@@ -303,15 +303,15 @@
                 const table = document.createElement('table');
                 table.className = 'w-full text-left table-auto';
                 
-                // --- MODIFICACIÓN CLAVE ---
-                // Se genera una sola celda que combina el comando y la descripción.
-                // El botón copiar está al lado.
+                // --- ARREGLO APLICADO AQUÍ ---
+                // Se usa .replace() para escapar los caracteres < y > en c.cmd
+                // Así el navegador los muestra como texto en lugar de interpretarlos como etiquetas HTML.
                 table.innerHTML = `<tbody class="divide-y divide-stone-200">${item.commands.map(c => 
                     `<tr class="hover:bg-stone-50">
                         <td class="py-3 pr-2">
                             <div class="flex justify-between items-center flex-wrap gap-2">
                                 <span class="flex-1 min-w-[200px]">
-                                    <code>${c.cmd}</code>
+                                    <code>${c.cmd.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>
                                     <span class="text-stone-600">: ${c.desc}</span>
                                 </span>
                                 <button class="copy-btn flex-shrink-0">Copiar</button>
@@ -319,7 +319,7 @@
                         </td>
                     </tr>`
                 ).join('')}</tbody>`;
-                // --- FIN DE LA MODIFICACIÓN ---
+                // --- FIN DEL ARREGLO ---
 
                 content.appendChild(table);
                 accordionItem.appendChild(button);
@@ -334,6 +334,31 @@
                         button.querySelector('span:last-child').style.transform = 'rotate(180deg)';
                     }
                 });
+            });
+
+            accordionContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.copy-btn');
+                if (button) {
+                    const codeEl = button.parentElement.querySelector('code');
+                    const textToCopy = codeEl.textContent;
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = textToCopy;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    try {
+                        document.execCommand('copy');
+                        const originalText = button.textContent;
+                        button.textContent = '¡Copiado!';
+                        button.classList.add('bg-green-500', 'text-white');
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                            button.classList.remove('bg-green-500', 'text-white');
+                        }, 1500);
+                    } catch (err) {
+                        console.error('Error al copiar:', err);
+                    }
+                    document.body.removeChild(tempTextArea);
+                }
             });
 
             accordionContainer.addEventListener('click', (e) => {
