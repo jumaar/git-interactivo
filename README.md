@@ -1,8 +1,5 @@
-# git-interactivo
+## Git Flow Interactivo : Guía Visual
 Aprende y repasa Git de forma interactiva. Simula flujos de trabajo (commit, branch, push, pull) y usa la guía de comandos para un acceso rápido.
-
-## GitFlow Interactivo: Tu Guía Visual para Git
-Esta es una página web interactiva diseñada para aprender y repasar Git de una forma fácil y visual. Olvídate de los comandos abstractos y aprende haciendo, sin riesgo a romper nada.
 
 Es la herramienta perfecta tanto para principiantes que empiezan desde cero como para desarrolladores que solo necesitan un recordatorio rápido.
 
