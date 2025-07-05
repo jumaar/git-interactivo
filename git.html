@@ -161,7 +161,7 @@
                     <h3 class="font-bold mb-2">2. Área de Revisión</h3>
                 </div>
                 <div class="zone" id="local-repo-zone">
-                    <h3 class="font-bold mb-2">3. Rama Master</h3>
+                    <h3 class="font-bold mb-2">3. Repositorio local</h3>
                 </div>
             </div>
         </section>
@@ -272,15 +272,48 @@
             const remoteFeedback = document.getElementById('remote-feedback');
             const newRemoteCommit = document.getElementById('new-remote-commit');
             let remoteState = { cloned: false, localCommits: 0, pulled: true };
-            function updateRemoteButtons() { cloneBtn.disabled = remoteState.cloned; pushBtn.disabled = !remoteState.cloned || remoteState.localCommits === 0; pullBtn.disabled = !remoteState.cloned || remoteState.pulled; }
-            function setRemoteFeedback(text) { remoteFeedback.textContent = text; setTimeout(() => remoteFeedback.textContent = ' ', 2500); }
+
+            function updateRemoteButtons() { cloneBtn.disabled = remoteState.cloned; pushBtn.disabled = !remoteState.cloned || remoteState.localCommits === 0 || !remoteState.pulled; pullBtn.disabled = !remoteState.cloned || remoteState.pulled; }
+
+            function setRemoteFeedback(text) { remoteFeedback.textContent = text; setTimeout(() => remoteFeedback.textContent = ' ',12000); }
+
             function createLocalCommit() { if (!remoteState.cloned) { setRemoteFeedback('Debes clonar primero.'); return; }; remoteState.localCommits++; const newCommit = document.createElement('div'); newCommit.className = 'commit-block bg-yellow-200 border-yellow-400 p-2 rounded-md'; newCommit.textContent = `Commit Local ${remoteState.localCommits}`; localCommitsContainer.appendChild(newCommit); updateRemoteButtons(); setRemoteFeedback('Nuevo commit creado localmente.'); }
-            cloneBtn.addEventListener('click', () => { if (!remoteState.cloned) { localCommitsContainer.innerHTML = remoteCommitsContainer.innerHTML; remoteState.cloned = true; setTimeout(createLocalCommit, 1000); updateRemoteButtons(); setRemoteFeedback('git clone <url>'); } });
+
+      
+            cloneBtn.addEventListener('click', () => {
+                if (!remoteState.cloned) {
+                    localCommitsContainer.innerHTML = remoteCommitsContainer.innerHTML;
+                    remoteState.cloned = true;
+                    setTimeout(createLocalCommit, 1000);
+                    updateRemoteButtons();
+                    setRemoteFeedback('git clone <url>');
+
+            setTimeout(() => {
+                if (remoteState.cloned && remoteState.pulled) {
+
+                    // 1. (SE MANTIENE) Esta línea es la que hace VISIBLE el commit.
+                    newRemoteCommit.classList.remove('opacity-0');
+
+                    // 2. (NUEVO) Quitamos las clases de color morado originales.
+                    newRemoteCommit.classList.remove('bg-purple-200', 'border-purple-400');
+
+                    // 3. (NUEVO) Agregamos las nuevas clases de color rojo.
+                    newRemoteCommit.classList.add('bg-red-200', 'border-red-400');
+
+                    // El resto del código se mantiene igual
+                    remoteState.pulled = false;
+                    updateRemoteButtons();
+                    setRemoteFeedback('¡Un colega subió un cambio! Haz "pull".');
+                }
+            }, 4000); // Se ejecutará 3 segundos después de clonar.
+                }
+            });
+
             pushBtn.addEventListener('click', () => { if (remoteState.cloned && remoteState.localCommits > 0) { const localCommits = localCommitsContainer.querySelectorAll('.bg-yellow-200'); localCommits.forEach(commit => { commit.classList.replace('bg-yellow-200', 'bg-blue-200'); commit.classList.replace('border-yellow-400', 'border-blue-400'); remoteCommitsContainer.appendChild(commit); }); remoteState.localCommits = 0; updateRemoteButtons(); setRemoteFeedback('git push origin main'); } });
-            pullBtn.addEventListener('click', () => { if(!remoteState.pulled){ localCommitsContainer.appendChild(newRemoteCommit); newRemoteCommit.classList.remove('opacity-0'); newRemoteCommit.classList.add('relative', 'bottom-auto', 'right-auto'); remoteState.pulled = true; updateRemoteButtons(); setRemoteFeedback('git pull origin main'); } });
+            pullBtn.addEventListener('click', () => { if(!remoteState.pulled){ localCommitsContainer.appendChild(newRemoteCommit); newRemoteCommit.classList.remove('opacity-0'); newRemoteCommit.classList.add('relative', 'bottom-auto', 'right-auto'); remoteState.pulled = true; updateRemoteButtons(); setRemoteFeedback('git pull archivo descargado localmente!'); } });
             function resetRemoteSimulation() { remoteState = { cloned: false, localCommits: 0, pulled: true }; localCommitsContainer.innerHTML = ''; remoteCommitsContainer.innerHTML = `<div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 1</div><div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 2</div>`; const remoteZone = document.getElementById('remote-repo-zone'); newRemoteCommit.remove(); remoteZone.appendChild(newRemoteCommit); newRemoteCommit.className = 'commit-block bg-purple-200 border-purple-400 p-2 rounded-md opacity-0 absolute bottom-4 right-4'; updateRemoteButtons(); setRemoteFeedback('Estado reiniciado.'); }
             resetRemoteBtn.addEventListener('click', resetRemoteSimulation);
-            setTimeout(() => { if (remoteState.cloned && remoteState.pulled) { newRemoteCommit.classList.remove('opacity-0'); remoteState.pulled = false; updateRemoteButtons(); setRemoteFeedback('¡Un colega subió un cambio! Haz "pull".'); } }, 5000);
+            
 
             // --- Accordion for Commands ---
             const commandData = [
