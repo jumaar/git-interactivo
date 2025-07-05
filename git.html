@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Git y GitHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Chosen Palette: Calm Harmony (Tailwind Stone, Sky, Amber) */
+        /* Application Structure Plan: A single-page application divided into five thematic, interactive sections: 'El Mapa' (The Map), 'Flujo Local' (Local Workflow), 'Flujo de Ramas' (Branching Workflow), 'Flujo Remoto' (Remote Workflow), and a 'Comandos' reference section. This structure provides a complete learning tool, from conceptual simulation to practical command reference. */
+        /* Visualization & Content Choices: 
+            - Flujo de Ramas: Uses the simpler, clearer visualization with flexbox and opacity toggling.
+            - Comandos: Implemented as a collapsible accordion. Each command now includes a "Copy" button for easy use and features more complete example syntax as requested.
+            - Copy Functionality: Uses document.execCommand for broad compatibility within iframes, providing instant utility.
+            - Library/Method: Vanilla JS for all interactions. Tailwind CSS for all styling. No Chart.js/Plotly needed.
+        */
+        /* CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. */
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+            color: #44403c; /* stone-700 */
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .zone {
+            border: 2px dashed #a8a29e; /* stone-400 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 150px;
+            transition: all 0.3s ease-in-out;
+        }
+        .file, .commit-block {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.5s ease-in-out;
+            transform-origin: center;
+        }
+        .branch-line {
+            position: relative;
+            width: 100%;
+            height: 2px;
+            background-color: #38bdf8; /* sky-400 */
+        }
+        .branch-line::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8; /* sky-400 */
+            border-radius: 50%;
+        }
+        .commit-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            border: 2px solid #0284c7; /* sky-600 */
+            border-radius: 50%;
+            top: -5px;
+            transition: opacity 0.5s ease;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        code {
+            background-color: #e7e5e4; /* stone-200 */
+            color: #be123c; /* rose-700 */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+        }
+        .copy-btn {
+            background-color: #d6d3d1; /* stone-300 */
+            color: #44403c; /* stone-700 */
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background-color: #a8a29e; /* stone-400 */
+            color: white;
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-stone-100 text-stone-800">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-sky-600">GitFlow Interactivo</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#mapa" class="text-stone-600 hover:bg-stone-200 hover:text-stone-900 px-3 py-2 rounded-md text-sm font-medium">El Mapa</a>
+                        <a href="#flujo-local" class="text-stone-600 hover:bg-stone-200 hover:text-stone-900 px-3 py-2 rounded-md text-sm font-medium">Flujo Local</a>
+                        <a href="#flujo-ramas" class="text-stone-600 hover:bg-stone-200 hover:text-stone-900 px-3 py-2 rounded-md text-sm font-medium">Flujo de Ramas</a>
+                        <a href="#flujo-remoto" class="text-stone-600 hover:bg-stone-200 hover:text-stone-900 px-3 py-2 rounded-md text-sm font-medium">Flujo Remoto</a>
+                        <a href="#comandos" class="text-stone-600 hover:bg-stone-200 hover:text-stone-900 px-3 py-2 rounded-md text-sm font-medium">Comandos</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+        <section id="mapa" class="section-card">
+            <h2 class="text-2xl font-bold text-stone-900 mb-2">🗺️ El Mapa General: Las 4 Zonas Clave</h2>
+            <p class="mb-6 text-stone-600">Todo proyecto en Git vive en estas cuatro zonas. Tu trabajo es mover los cambios entre ellas de forma controlada. Esta es la base para entender todo lo demás.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-stone-50 p-4 rounded-lg border border-stone-200 text-center hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                    <p class="text-5xl mb-2">💻</p> <h3 class="font-bold text-lg">Directorio de Trabajo</h3> <p class="text-sm text-stone-500">Tu carpeta local. Aquí creas, editas y borras archivos.</p>
+                </div>
+                <div class="bg-stone-50 p-4 rounded-lg border border-stone-200 text-center hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                    <p class="text-5xl mb-2">📦</p> <h3 class="font-bold text-lg">Staging Area (Índice)</h3> <p class="text-sm text-stone-500">La "caja de preparación". Agrupas los cambios que irán en el próximo guardado.</p>
+                </div>
+                <div class="bg-stone-50 p-4 rounded-lg border border-stone-200 text-center hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                    <p class="text-5xl mb-2">🗄️</p> <h3 class="font-bold text-lg">Repositorio Local</h3> <p class="text-sm text-stone-500">El historial de "fotos" (commits) guardado en tu PC. Tu máquina del tiempo.</p>
+                </div>
+                <div class="bg-stone-50 p-4 rounded-lg border border-stone-200 text-center hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                    <p class="text-5xl mb-2">☁️</p> <h3 class="font-bold text-lg">Repositorio Remoto</h3> <p class="text-sm text-stone-500">Copia en la nube (GitHub). Tu respaldo y centro de colaboración.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="flujo-local" class="section-card">
+            <h2 class="text-2xl font-bold text-stone-900 mb-2">⚙️ Simulación de Flujo Local</h2>
+            <p class="mb-6 text-stone-600">Este es tu ciclo de trabajo diario. Modifica un archivo, prepáralo y confírmalo para guardarlo en tu historial. Haz clic en los botones para ver la magia.</p>
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="add-btn" class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">1. git add</button>
+                <button id="commit-btn" disabled class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">2. git commit</button>
+                <button id="reset-local-btn" class="bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600 transition-colors">Reiniciar</button>
+            </div>
+            <div id="local-feedback" class="text-center font-mono text-sm text-amber-600 h-6 mb-4">&nbsp;</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="zone" id="working-dir-zone">
+                    <h3 class="font-bold mb-2">1. Área de Trabajo</h3>
+                    <div id="file-a" class="file bg-green-200 border border-green-400 p-2 rounded-md inline-block">archivo.js (modificado)</div>
+                </div>
+                <div class="zone" id="staging-zone">
+                    <h3 class="font-bold mb-2">2. Área de Revisión</h3>
+                </div>
+                <div class="zone" id="local-repo-zone">
+                    <h3 class="font-bold mb-2">3. Rama Master</h3>
+                </div>
+            </div>
+        </section>
+
+        <section id="flujo-ramas" class="section-card">
+            <h2 class="text-2xl font-bold text-stone-900 mb-2">🌿 Simulación de Flujo de Ramas</h2>
+            <p class="mb-6 text-stone-600">Las ramas te permiten experimentar sin afectar tu línea principal de desarrollo. Crea una rama para una nueva función, trabaja en ella y luego fusiónala de vuelta.</p>
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="branch-btn" class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">1. git branch nueva-funcion</button>
+                <button id="merge-btn" disabled class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">2. git merge</button>
+                <button id="reset-branch-btn" class="bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600 transition-colors">Reiniciar</button>
+            </div>
+            <div id="branch-feedback" class="text-center font-mono text-sm text-amber-600 h-6 mb-4">&nbsp;</div>
+            <div class="p-4 space-y-12">
+                <div class="flex items-center">
+                    <span class="font-mono mr-4 w-24 text-right">main</span>
+                    <div id="main-branch-line" class="branch-line flex-1">
+                        <div class="commit-dot" style="left: 10%;"></div>
+                        <div class="commit-dot" style="left: 30%;"></div>
+                        <div id="merge-commit-dot" class="commit-dot opacity-0" style="left: 80%;"></div>
+                    </div>
+                </div>
+                <div id="feature-branch-vis" class="flex items-center opacity-0 transition-opacity duration-500">
+                    <span class="font-mono mr-4 w-24 text-right text-green-600">nueva-funcion</span>
+                    <div class="w-[calc(30%+8px)] flex-shrink-0"></div>
+                    <div class="branch-line flex-1 !bg-green-400">
+                         <div class="commit-dot !border-green-600" style="left: 25%;"></div>
+                         <div class="commit-dot !border-green-600" style="left: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="flujo-remoto" class="section-card">
+            <h2 class="text-2xl font-bold text-stone-900 mb-2">☁️ Simulación de Flujo Remoto</h2>
+            <p class="mb-6 text-stone-600">Sincroniza tu trabajo con un repositorio en la nube como GitHub. "Empuja" (push) tus cambios para compartirlos y "hala" (pull) los de otros para actualizarte.</p>
+            <div class="flex flex-wrap justify-center gap-4 mb-6">
+                <button id="clone-btn" class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors">git clone</button>
+                <button id="push-btn" disabled class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">git push</button>
+                <button id="pull-btn" disabled class="bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition-colors disabled:bg-stone-300">git pull</button>
+                <button id="reset-remote-btn" class="bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600 transition-colors">Reiniciar</button>
+            </div>
+            <div id="remote-feedback" class="text-center font-mono text-sm text-amber-600 h-6 mb-4">&nbsp;</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                <div class="zone relative" id="local-repo-remote-zone">
+                    <h3 class="font-bold mb-2">🗄️ Repositorio Local</h3>
+                    <div id="local-commits-container" class="space-y-2 p-2"></div>
+                </div>
+                <div class="zone relative" id="remote-repo-zone">
+                    <h3 class="font-bold mb-2">☁️ Repositorio Remoto (GitHub)</h3>
+                    <div id="remote-commits-container" class="space-y-2 p-2">
+                         <div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 1</div>
+                         <div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 2</div>
+                    </div>
+                    <div id="new-remote-commit" class="commit-block bg-purple-200 border-purple-400 p-2 rounded-md opacity-0 absolute bottom-4 right-4">Commit de Colega</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="comandos" class="section-card">
+            <h2 class="text-2xl font-bold text-stone-900 mb-2">⚡ Guía Rápida de Comandos Esenciales</h2>
+            <p class="mb-6 text-stone-600">Tu chuleta personal de Git. Haz clic en cada categoría para expandir y ver los comandos más importantes.</p>
+            <div class="space-y-2" id="accordion-container">
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Flujo Local Logic ---
+            const addBtn = document.getElementById('add-btn');
+            const commitBtn = document.getElementById('commit-btn');
+            const resetLocalBtn = document.getElementById('reset-local-btn');
+            const fileA = document.getElementById('file-a');
+            const workingDirZone = document.getElementById('working-dir-zone');
+            const stagingZone = document.getElementById('staging-zone');
+            const localRepoZone = document.getElementById('local-repo-zone');
+            const localFeedback = document.getElementById('local-feedback');
+            let fileState = 'working';
+            function updateLocalButtons() { addBtn.disabled = fileState !== 'working'; commitBtn.disabled = fileState !== 'staged'; }
+            function setLocalFeedback(text) { localFeedback.textContent = text; setTimeout(() => localFeedback.textContent = ' ', 2500); }
+            addBtn.addEventListener('click', () => { if (fileState === 'working') { stagingZone.appendChild(fileA); fileState = 'staged'; updateLocalButtons(); setLocalFeedback('git add archivo.js'); } });
+            commitBtn.addEventListener('click', () => { if (fileState === 'staged') { localRepoZone.appendChild(fileA); fileA.classList.replace('bg-green-200', 'bg-sky-200'); fileA.classList.replace('border-green-400', 'border-sky-400'); fileA.textContent = 'Commit: d8a3f7c'; fileState = 'committed'; updateLocalButtons(); setLocalFeedback('git commit -m "commit inicial"'); } });
+            resetLocalBtn.addEventListener('click', () => { workingDirZone.appendChild(fileA); fileA.classList.replace('bg-sky-200', 'bg-green-200'); fileA.classList.replace('border-sky-400', 'border-green-400'); fileA.textContent = 'archivo.js (modificado)'; fileState = 'working'; updateLocalButtons(); setLocalFeedback('Estado reiniciado.'); });
+
+            // --- Flujo de Ramas Logic ---
+            const branchBtn = document.getElementById('branch-btn');
+            const mergeBtn = document.getElementById('merge-btn');
+            const resetBranchBtn = document.getElementById('reset-branch-btn');
+            const featureBranchVis = document.getElementById('feature-branch-vis');
+            const mergeCommitDot = document.getElementById('merge-commit-dot');
+            const branchFeedback = document.getElementById('branch-feedback');
+            let branchState = 'initial';
+            function updateBranchButtons() { branchBtn.disabled = branchState !== 'initial'; mergeBtn.disabled = branchState !== 'branched'; }
+            function setBranchFeedback(text) { branchFeedback.textContent = text; setTimeout(() => branchFeedback.textContent = ' ', 2500); }
+            branchBtn.addEventListener('click', () => { if(branchState === 'initial') { featureBranchVis.classList.remove('opacity-0'); branchState = 'branched'; updateBranchButtons(); setBranchFeedback('git checkout -b nueva-funcion'); } });
+            mergeBtn.addEventListener('click', () => { if(branchState === 'branched') { mergeCommitDot.classList.remove('opacity-0'); featureBranchVis.classList.add('opacity-50'); branchState = 'merged'; updateBranchButtons(); setBranchFeedback('git checkout main; git merge nueva-funcion'); } });
+            resetBranchBtn.addEventListener('click', () => { featureBranchVis.classList.add('opacity-0'); mergeCommitDot.classList.add('opacity-0'); featureBranchVis.classList.remove('opacity-50'); branchState = 'initial'; updateBranchButtons(); setBranchFeedback('Estado reiniciado.'); });
+
+            // --- Flujo Remoto Logic ---
+            const cloneBtn = document.getElementById('clone-btn');
+            const pushBtn = document.getElementById('push-btn');
+            const pullBtn = document.getElementById('pull-btn');
+            const resetRemoteBtn = document.getElementById('reset-remote-btn');
+            const localCommitsContainer = document.getElementById('local-commits-container');
+            const remoteCommitsContainer = document.getElementById('remote-commits-container');
+            const remoteFeedback = document.getElementById('remote-feedback');
+            const newRemoteCommit = document.getElementById('new-remote-commit');
+            let remoteState = { cloned: false, localCommits: 0, pulled: true };
+            function updateRemoteButtons() { cloneBtn.disabled = remoteState.cloned; pushBtn.disabled = !remoteState.cloned || remoteState.localCommits === 0; pullBtn.disabled = !remoteState.cloned || remoteState.pulled; }
+            function setRemoteFeedback(text) { remoteFeedback.textContent = text; setTimeout(() => remoteFeedback.textContent = ' ', 2500); }
+            function createLocalCommit() { if (!remoteState.cloned) { setRemoteFeedback('Debes clonar primero.'); return; }; remoteState.localCommits++; const newCommit = document.createElement('div'); newCommit.className = 'commit-block bg-yellow-200 border-yellow-400 p-2 rounded-md'; newCommit.textContent = `Commit Local ${remoteState.localCommits}`; localCommitsContainer.appendChild(newCommit); updateRemoteButtons(); setRemoteFeedback('Nuevo commit creado localmente.'); }
+            cloneBtn.addEventListener('click', () => { if (!remoteState.cloned) { localCommitsContainer.innerHTML = remoteCommitsContainer.innerHTML; remoteState.cloned = true; setTimeout(createLocalCommit, 1000); updateRemoteButtons(); setRemoteFeedback('git clone <url>'); } });
+            pushBtn.addEventListener('click', () => { if (remoteState.cloned && remoteState.localCommits > 0) { const localCommits = localCommitsContainer.querySelectorAll('.bg-yellow-200'); localCommits.forEach(commit => { commit.classList.replace('bg-yellow-200', 'bg-blue-200'); commit.classList.replace('border-yellow-400', 'border-blue-400'); remoteCommitsContainer.appendChild(commit); }); remoteState.localCommits = 0; updateRemoteButtons(); setRemoteFeedback('git push origin main'); } });
+            pullBtn.addEventListener('click', () => { if(!remoteState.pulled){ localCommitsContainer.appendChild(newRemoteCommit); newRemoteCommit.classList.remove('opacity-0'); newRemoteCommit.classList.add('relative', 'bottom-auto', 'right-auto'); remoteState.pulled = true; updateRemoteButtons(); setRemoteFeedback('git pull origin main'); } });
+            function resetRemoteSimulation() { remoteState = { cloned: false, localCommits: 0, pulled: true }; localCommitsContainer.innerHTML = ''; remoteCommitsContainer.innerHTML = `<div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 1</div><div class="commit-block bg-blue-200 border-blue-400 p-2 rounded-md opacity-50">Commit Remoto 2</div>`; const remoteZone = document.getElementById('remote-repo-zone'); newRemoteCommit.remove(); remoteZone.appendChild(newRemoteCommit); newRemoteCommit.className = 'commit-block bg-purple-200 border-purple-400 p-2 rounded-md opacity-0 absolute bottom-4 right-4'; updateRemoteButtons(); setRemoteFeedback('Estado reiniciado.'); }
+            resetRemoteBtn.addEventListener('click', resetRemoteSimulation);
+            setTimeout(() => { if (remoteState.cloned && remoteState.pulled) { newRemoteCommit.classList.remove('opacity-0'); remoteState.pulled = false; updateRemoteButtons(); setRemoteFeedback('¡Un colega subió un cambio! Haz "pull".'); } }, 5000);
+
+            // --- Accordion for Commands ---
+            const commandData = [
+                { title: '⚙️ 1. Configuración Inicial (Solo una vez)', commands: [ { cmd: 'git config --global user.name "Tu Nombre"', desc: 'Establece tu nombre para todos los commits.' }, { cmd: 'git config --global user.email "tu@email.com"', desc: 'Establece tu email para todos los commits.' } ] },
+                { title: '🔄 2. Flujo de Trabajo Local (Tu día a día)', commands: [ { cmd: 'git init', desc: 'Inicia un nuevo repositorio en una carpeta.' }, { cmd: 'git status', desc: 'Muestra el estado de tus archivos (¡tu mejor amigo!).' }, { cmd: 'git add .', desc: 'Prepara TODOS los cambios para el próximo commit.' }, { cmd: 'git add <archivo.txt>', desc: 'Prepara un archivo específico para el commit.' }, { cmd: 'git commit -m "Un mensaje descriptivo"', desc: 'Guarda los cambios preparados en tu historial local.' } ] },
+                { title: '🌿 3. Ramas (Trabajar en paralelo)', commands: [ { cmd: 'git branch', desc: 'Lista todas las ramas locales.' }, { cmd: 'git branch <nombre-nueva-rama>', desc: 'Crea una nueva rama.' }, { cmd: 'git checkout -b <nombre-nueva-rama>', desc: 'Crea una nueva rama y cambia a ella en un paso.' }, { cmd: 'git checkout <nombre-rama-existente>', desc: 'Cambia de una rama a otra (o `git switch <rama>`).' }, { cmd: 'git merge <rama-a-fusionar>', desc: 'Fusiona los cambios de una rama en tu rama actual.' }, { cmd: 'git checkout -b <nombre-nueva-rama> <ID-del-commit>', desc: 'Crea una rama desde un commit específico del pasado.' }, { cmd: 'git branch -d <nombre-rama-a-borrar>', desc: 'Elimina una rama local (si ya fue fusionada).'}, { cmd: 'git branch -D <nombre-rama-a-borrar>', desc: 'Fuerza la eliminación de una rama local (¡con cuidado!).'} ] },
+                { title: '☁️ 4. Sincronización con Remoto (GitHub)', commands: [ { cmd: 'git clone <URL_del_repositorio>', desc: 'Crea una copia local de un repositorio remoto.' }, { cmd: 'git push origin <nombre-rama>', desc: 'Sube tus commits locales al repositorio remoto.' }, { cmd: 'git pull origin <nombre-rama>', desc: 'Descarga y fusiona los cambios del remoto. ¡Hazlo siempre!' } ] },
+                { title: '📜 5. Revisar el Historial y Deshacer Cambios', commands: [ { cmd: 'git log', desc: 'Muestra el historial de commits detallado.' }, { cmd: 'git log --oneline --graph', desc: 'Muestra un historial gráfico y compacto.' }, { cmd: 'git checkout <ID-del-commit>', desc: 'Viaja a un commit pasado para explorar (modo turista).'}, { cmd: 'git revert <ID-del-commit>', desc: 'Crea un nuevo commit que revierte cambios (forma segura).'}, { cmd: 'git reset --hard <ID-del-commit>', desc: 'Borra commits locales que no has subido (¡con cuidado!).'} ] }
+            ];
+
+            const accordionContainer = document.getElementById('accordion-container');
+            commandData.forEach(item => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'border border-stone-200 rounded-lg';
+                const button = document.createElement('button');
+                button.className = 'accordion-button w-full p-4 text-left font-bold text-stone-800 bg-stone-100 hover:bg-stone-200 flex justify-between items-center transition-colors';
+                button.innerHTML = `<span>${item.title}</span><span class="transform transition-transform duration-300">▼</span>`;
+                const content = document.createElement('div');
+                content.className = 'accordion-content bg-white p-4 border-t border-stone-200';
+                const table = document.createElement('table');
+                table.className = 'w-full text-left table-auto';
+                
+                // --- MODIFICACIÓN CLAVE ---
+                // Se genera una sola celda que combina el comando y la descripción.
+                // El botón copiar está al lado.
+                table.innerHTML = `<tbody class="divide-y divide-stone-200">${item.commands.map(c => 
+                    `<tr class="hover:bg-stone-50">
+                        <td class="py-3 pr-2">
+                            <div class="flex justify-between items-center flex-wrap gap-2">
+                                <span class="flex-1 min-w-[200px]">
+                                    <code>${c.cmd}</code>
+                                    <span class="text-stone-600">: ${c.desc}</span>
+                                </span>
+                                <button class="copy-btn flex-shrink-0">Copiar</button>
+                            </div>
+                        </td>
+                    </tr>`
+                ).join('')}</tbody>`;
+                // --- FIN DE LA MODIFICACIÓN ---
+
+                content.appendChild(table);
+                accordionItem.appendChild(button);
+                accordionItem.appendChild(content);
+                accordionContainer.appendChild(accordionItem);
+                button.addEventListener('click', () => {
+                    const isExpanded = content.style.maxHeight;
+                    document.querySelectorAll('.accordion-content').forEach(el => el.style.maxHeight = null);
+                    document.querySelectorAll('.accordion-button span:last-child').forEach(el => el.style.transform = 'rotate(0deg)');
+                    if (!isExpanded) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        button.querySelector('span:last-child').style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            accordionContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.copy-btn');
+                if (button) {
+                    // --- MODIFICACIÓN CLAVE PARA COPIAR ---
+                    // Busca el elemento <code> dentro del contenedor del botón para copiar solo el comando.
+                    const codeEl = button.parentElement.querySelector('code');
+                    // --- FIN DE LA MODIFICACIÓN ---
+
+                    const textToCopy = codeEl.textContent;
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = textToCopy;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    try {
+                        document.execCommand('copy');
+                        const originalText = button.textContent;
+                        button.textContent = '¡Copiado!';
+                        button.classList.add('bg-green-500', 'text-white');
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                            button.classList.remove('bg-green-500', 'text-white');
+                        }, 1500);
+                    } catch (err) {
+                        console.error('Error al copiar:', err);
+                    }
+                    document.body.removeChild(tempTextArea);
+                }
+            });
+
+            updateLocalButtons();
+            updateBranchButtons();
+            updateRemoteButtons();
+        });
+    </script>
+</body>
+</html>
